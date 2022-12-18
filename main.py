@@ -4,6 +4,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from datetime import datetime
+
 from config import TOKEN
 
 
@@ -36,6 +38,13 @@ async def send_info(message: types.Message, state: FSMContext):
 @dp.message_handler(Text(["Расскажи о себе"]), state='*')
 async def send_about(message: types.Message, state: FSMContext):
     await send_info(message, state)
+
+@dp.message_handler(Text(["Сколько времени?"]), state='*')
+async def send_time(message: types.Message, state: FSMContext):
+    await state.finish()
+    now = datetime.now().replace(microsecond=0)
+    await message.answer("Сейчас: " + str(now),
+                         reply_markup=keyboard_start)
 
 
 if __name__ == '__main__':
