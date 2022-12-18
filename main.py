@@ -63,6 +63,25 @@ async def send_repeat(message: types.Message, state: FSMContext):
     user_text = message.text
     await message.answer(user_text)
 
+@dp.message_handler(Text(["Калькулятор"]))
+async def start_calculating(message: types.Message):
+    await BotStates.calculating.set()
+    await message.answer("Напиши арифметическое выражение, которое нужно вычислить",
+                         reply_markup=types.ReplyKeyboardRemove())
+
+@dp.message_handler(state=BotStates.calculating)
+async def send_calculation(message: types.Message, state: FSMContext):
+    await state.finish()
+    user_text = message.text
+    result = None
+    try:
+        result = eval(user_text, {"__builtins__": {}}, {})
+    except Exception as e:
+        print(e)
+        result = 'Некорректное выражение!'
+    await message.answer("Результат: " + str(result),
+                         reply_markup=keyboard_start)
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
