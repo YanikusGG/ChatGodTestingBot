@@ -46,6 +46,23 @@ async def send_time(message: types.Message, state: FSMContext):
     await message.answer("Сейчас: " + str(now),
                          reply_markup=keyboard_start)
 
+@dp.message_handler(Text(["Повторюшка"]))
+async def start_repeating(message: types.Message):
+    await BotStates.repeating.set()
+    await message.answer("Играем в повторюшку) если надоест, напиши `стоп`",
+                         reply_markup=types.ReplyKeyboardRemove())
+
+@dp.message_handler(Text(["стоп", "Стоп", "stop", "Stop"]), state=BotStates.repeating)
+async def stop_repeating(message: types.Message, state: FSMContext):
+    await state.finish()
+    await message.answer("Отлично поиграли!!",
+                         reply_markup=keyboard_start)
+
+@dp.message_handler(state=BotStates.repeating)
+async def send_repeat(message: types.Message, state: FSMContext):
+    user_text = message.text
+    await message.answer(user_text)
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
